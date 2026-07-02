@@ -20,8 +20,8 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
-// --- API Routes (will be added in later steps) ---
-// app.use('/api/auth', require('./routes/authRoutes'));
+// --- API Routes ---
+app.use('/api/auth', require('./routes/authRoutes'));
 // app.use('/api/reservations', require('./routes/reservationRoutes'));
 
 // --- Centralized Error Handler (placeholder, will be expanded in Step 8) ---
