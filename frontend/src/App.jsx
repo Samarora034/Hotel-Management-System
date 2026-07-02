@@ -1,15 +1,58 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/layout/Navbar';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Home from './pages/Home';
+import Unauthorized from './pages/Unauthorized';
+import CustomerDashboard from './pages/customer/CustomerDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-           Restaurant Reservation System
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Setup complete. Ready for development.
-        </p>
-      </div>
-    </div>
+    <Router>
+      <AuthProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+
+            {/* Customer Routes */}
+            <Route
+              path="/customer/reserve"
+              element={
+                <ProtectedRoute roles={['Customer']}>
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/my-reservations"
+              element={
+                <ProtectedRoute roles={['Customer']}>
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute roles={['Admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </Router>
   );
 }
 
