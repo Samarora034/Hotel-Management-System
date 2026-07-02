@@ -1,22 +1,17 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Protect routes - verify JWT token
+// checks if user is logged in (has valid token)
 const protect = async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer')) {
+    token = authHeader.split(' ')[1];
   }
 
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Not authorized, no token provided',
-    });
+    return res.status(401).json({ success: false, message: 'Not authorized - no token' });
   }
 
   try {
@@ -24,28 +19,22 @@ const protect = async (req, res, next) => {
     req.user = await User.findById(decoded.id);
 
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized, user not found',
-      });
+      return res.status(401).json({ success: false, message: 'User no longer exists' });
     }
 
     next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: 'Not authorized, token invalid',
-    });
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Token is invalid or expired' });
   }
 };
 
-// Authorize by role(s)
+// checks if user has the right role
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Role '${req.user.role}' is not authorized to access this route`,
+        message: `Access denied. Required role: ${roles.join(' or ')}`
       });
     }
     next();

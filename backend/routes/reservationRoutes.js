@@ -5,20 +5,19 @@ const {
   createReservation,
   getUserReservations,
   cancelReservation,
-  getAllReservations,
+  getAllReservations
 } = require('../controllers/reservationController');
 const { protect, authorize } = require('../middleware/auth');
 
-// All reservation routes require authentication
+// everything below requires login
 router.use(protect);
 
-// Customer & Admin routes
 router.get('/availability', checkAvailability);
 router.post('/', createReservation);
 router.get('/my', getUserReservations);
 router.patch('/:id/cancel', cancelReservation);
 
-// Admin-only routes
+// admin only
 router.get('/', authorize('Admin'), getAllReservations);
 
 module.exports = router;

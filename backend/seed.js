@@ -5,35 +5,33 @@ const Table = require('./models/Table');
 
 dotenv.config();
 
-const seedDB = async () => {
+const seed = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB Connected for seeding...');
+    console.log('Connected to MongoDB');
 
-    // Clear existing data
+    // wipe existing data
     await User.deleteMany({});
     await Table.deleteMany({});
-    console.log('Cleared existing Users and Tables.');
+    console.log('Cleared users and tables');
 
-    // --- Seed Admin User ---
+    // create admin
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@restaurant.com',
       password: 'admin123',
-      role: 'Admin',
+      role: 'Admin'
     });
-    console.log(`Admin created: ${admin.email} / password: admin123`);
 
-    // --- Seed a Customer User (for quick testing) ---
+    // create a test customer
     const customer = await User.create({
       name: 'John Doe',
       email: 'john@example.com',
       password: 'customer123',
-      role: 'Customer',
+      role: 'Customer'
     });
-    console.log(`Customer created: ${customer.email} / password: customer123`);
 
-    // --- Seed Tables ---
+    // create tables with different capacities
     const tables = [
       { tableNumber: 1, capacity: 2 },
       { tableNumber: 2, capacity: 2 },
@@ -44,23 +42,22 @@ const seedDB = async () => {
       { tableNumber: 7, capacity: 8 },
       { tableNumber: 8, capacity: 8 },
       { tableNumber: 9, capacity: 10 },
-      { tableNumber: 10, capacity: 12 },
+      { tableNumber: 10, capacity: 12 }
     ];
-
     await Table.insertMany(tables);
-    console.log(`${tables.length} tables seeded successfully.`);
 
-    console.log('\n--- Seed Summary ---');
-    console.log('Admin:    admin@restaurant.com / admin123');
-    console.log('Customer: john@example.com / customer123');
-    console.log(`Tables:   ${tables.length} tables (capacity 2-12)`);
-    console.log('--------------------\n');
+    console.log('\nSeeding complete!');
+    console.log('---');
+    console.log(`Admin:    ${admin.email} / admin123`);
+    console.log(`Customer: ${customer.email} / customer123`);
+    console.log(`Tables:   ${tables.length} (seats 2-12)`);
+    console.log('---');
 
     process.exit(0);
-  } catch (error) {
-    console.error(`Seeding error: ${error.message}`);
+  } catch (err) {
+    console.error('Seed failed:', err.message);
     process.exit(1);
   }
 };
 
-seedDB();
+seed();

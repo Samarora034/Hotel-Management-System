@@ -1,47 +1,44 @@
+// centralized error handler - catches all errors thrown in controllers
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let message = err.message || 'Something went wrong';
 
-  // Mongoose bad ObjectId (CastError)
+  // mongoose invalid ObjectId
   if (err.name === 'CastError') {
     statusCode = 400;
-    message = 'Resource not found. Invalid ID format.';
+    message = 'Invalid ID format';
   }
 
-  // Mongoose duplicate key error
+  // duplicate field (unique constraint violation)
   if (err.code === 11000) {
-    statusCode = 400;
     const field = Object.keys(err.keyValue)[0];
-    message = `Duplicate value for '${field}'. Please use another value.`;
+    statusCode = 400;
+    message = `${field} already exists`;
   }
 
-  // Mongoose validation error
+  // mongoose validation errors
   if (err.name === 'ValidationError') {
     statusCode = 400;
-    const messages = Object.values(err.errors).map((val) => val.message);
-    message = messages.join('. ');
+    message = Object.values(err.errors).map(e => e.message).join(', ');
   }
 
-  // JWT errors
+  // jwt stuff
   if (err.name === 'JsonWebTokenError') {
     statusCode = 401;
-    message = 'Invalid token. Please log in again.';
+    message = 'Invalid token';
   }
-
   if (err.name === 'TokenExpiredError') {
     statusCode = 401;
-    message = 'Token expired. Please log in again.';
+    message = 'Token expired';
   }
 
-  console.error(`[ERROR] ${statusCode} - ${message}`);
+  // log it for debugging
+  console.error(`[${statusCode}] ${message}`);
   if (process.env.NODE_ENV !== 'production') {
     console.error(err.stack);
   }
 
-  res.status(statusCode).json({
-    success: false,
-    message,
-  });
+  res.status(statusCode).json({ success: false, message });
 };
 
 module.exports = errorHandler;
