@@ -22,7 +22,7 @@ app.get('/api/health', (req, res) => {
 
 // --- API Routes ---
 app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/reservations', require('./routes/reservationRoutes'));
+app.use('/api/reservations', require('./routes/reservationRoutes'));
 
 // --- Centralized Error Handler (placeholder, will be expanded in Step 8) ---
 app.use((err, req, res, next) => {
