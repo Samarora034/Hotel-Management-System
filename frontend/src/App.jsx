@@ -7,6 +7,8 @@ import Register from './components/auth/Register';
 import Home from './pages/Home';
 import Unauthorized from './pages/Unauthorized';
 import CustomerDashboard from './pages/customer/CustomerDashboard';
+import CreateReservation from './pages/customer/CreateReservation';
+import MyReservations from './pages/customer/MyReservations';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
@@ -24,7 +26,7 @@ function App() {
 
             {/* Customer Routes */}
             <Route
-              path="/customer/reserve"
+              path="/customer/dashboard"
               element={
                 <ProtectedRoute roles={['Customer']}>
                   <CustomerDashboard />
@@ -32,10 +34,18 @@ function App() {
               }
             />
             <Route
+              path="/customer/reserve"
+              element={
+                <ProtectedRoute roles={['Customer']}>
+                  <CreateReservation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/customer/my-reservations"
               element={
                 <ProtectedRoute roles={['Customer']}>
-                  <CustomerDashboard />
+                  <MyReservations />
                 </ProtectedRoute>
               }
             />
