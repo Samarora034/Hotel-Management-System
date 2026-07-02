@@ -14,9 +14,29 @@ const app = express();
 
 // --- Middleware ---
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.CLIENT_URL || '*'
-    : '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    if (process.env.NODE_ENV === 'production') {
+      const allowedOrigins = process.env.CLIENT_URL
+        ? process.env.CLIENT_URL.split(',').map((url) => url.trim())
+        : [];
+
+      // Allow any Vercel preview URL from the same project
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app');
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      callback(null, true);
+    }
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
