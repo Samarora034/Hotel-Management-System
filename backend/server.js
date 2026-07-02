@@ -13,7 +13,13 @@ connectDB();
 const app = express();
 
 // --- Middleware ---
-app.use(cors());
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_URL || '*'
+    : '*',
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // --- Health Check Route ---
@@ -24,6 +30,15 @@ app.get('/api/health', (req, res) => {
 // --- API Routes ---
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/reservations', require('./routes/reservationRoutes'));
+
+// --- Serve Frontend in Production ---
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  });
+}
 
 // --- Centralized Error Handler (must be after routes) ---
 app.use(errorHandler);
